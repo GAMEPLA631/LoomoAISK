@@ -76,7 +76,8 @@
             </div>
             <div class="flex flex-col gap-2 max-w-[85%] md:max-w-[75%]">
                 <div class="px-5 py-3 rounded-2xl shadow-sm bg-slate-800/80 border border-slate-700 text-slate-200 rounded-tl-sm">
-                    <div class="whitespace-pre-wrap leading-relaxed text-[15px]">Ahoj! Som LoomoAI, jazykový model pripravený chatovať s tebou v akomkoľvek jazyku. Vlož svoj API kľúč v nastaveniach (ikona ozubeného kolesa vpravo hore) a môžeme začať konverzáciu!</div>
+                    <!-- Aktualizovaná uvítacia správa pre slovenskú preferenciu a multijazyčnosť -->
+                    <div class="whitespace-pre-wrap leading-relaxed text-[15px]">Ahoj! Som LoomoAI, multijazyčný asistent so základmi v slovenčine. Dokážem ti však odpovedať v akomkoľvek jazyku, ktorým sa spýtaš. Vlož svoj API kľúč v nastaveniach (ikona ozubeného kolesa vpravo hore) a môžeme začať konverzáciu!</div>
                 </div>
                 <span class="text-xs text-slate-500 text-left">Teraz</span>
             </div>
@@ -306,6 +307,10 @@
                 return;
             }
 
+            // Definuje persona a pravidlá modelu - Nová inštrukcia
+            const systemPrompt = "Si LoomoAI, pokročilý multijazyčný asistent. Tvoj materinský jazyk je slovenčina, no si plynulý vo všetkých jazykoch. VŽDY odpovedaj v tom jazyku, v ktorom bola položená otázka, pokiaľ nepožiadaš o preklad alebo zmenu. Buď ústretový, presný a užitočný.";
+
+
             const text = messageInput.value.trim();
             if (!text && !selectedImageBase64) return;
 
@@ -351,7 +356,10 @@
                 }
                 
                 const payload = { 
-                    contents: [{ parts: parts }] 
+                    contents: [{ parts: parts }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    }
                 };
                 
                 let response;
