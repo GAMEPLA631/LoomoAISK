@@ -77,7 +77,7 @@
             <div class="flex flex-col gap-2 max-w-[85%] md:max-w-[75%]">
                 <div class="px-5 py-3 rounded-2xl shadow-sm bg-slate-800/80 border border-slate-700 text-slate-200 rounded-tl-sm">
                     <!-- Aktualizovaná uvítacia správa pre slovenskú preferenciu a multijazyčnosť -->
-                    <div class="whitespace-pre-wrap leading-relaxed text-[15px]">Ahoj! Som LoomoAI, multijazyčný asistent so základmi v slovenčine. Dokážem ti však odpovedať v akomkoľvek jazyku, ktorým sa spýtaš. Vlož svoj API kľúč v nastaveniach (ikona ozubeného kolesa vpravo hore) a môžeme začať konverzáciu!</div>
+                    <div class="whitespace-pre-wrap leading-relaxed text-[15px]">Ahoj! Som LoomoAI, multijazyčný asistent. Pamätám si celú našu konverzáciu, kým neobnovíš stránku. Môžeš sa ma pýtať v akomkoľvek jazyku. Vlož svoj API kľúč v nastaveniach (ikona ozubeného kolesa vpravo hore) a môžeme začať!</div>
                 </div>
                 <span class="text-xs text-slate-500 text-left">Teraz</span>
             </div>
@@ -174,13 +174,15 @@
     <script>
         // Premenné
         const API_KEY_STORAGE_KEY = 'loomo_api_key_sk'; 
-        // Technický názov modelu pre API volanie (ponechaný pre funkčnosť)
-        const API_MODEL_TECHNICAL = 'gemini-2.5-flash'; 
-        // Názov modelu pre zobrazenie v UI (zmenený na LoomoAI)
+        const API_MODEL_TECHNICAL = 'gemini-2.5-flash-preview-09-2025'; // Používame preferovaný model
         const API_MODEL_DISPLAY = 'LoomoAI (Multilingual)'; 
         let apiKey = localStorage.getItem(API_KEY_STORAGE_KEY) || '';
         let selectedImageBase64 = null;
         let isProcessing = false;
+        
+        // Histórie konverzácie (uložená len počas trvania session)
+        // Každý objekt má formát { role: 'user'/'model', parts: [{ text: '...' }, { inlineData: '...' }] }
+        let chatHistory = []; 
 
         // DOM Elementy
         const chatContainer = document.getElementById('chatContainer');
@@ -204,13 +206,14 @@
 
         // Inicializácia
         function init() {
-            // Zmena: Použitie zobrazeného názvu
             currentModelDisplay.textContent = API_MODEL_DISPLAY;
             if (!apiKey) {
                 openSettings(false); 
             } else {
                 apiKeyInput.value = apiKey;
             }
+            // Resetovanie histórie pri načítaní stránky
+            chatHistory = []; 
             scrollToBottom();
             updateSendButtonState();
         }
@@ -236,7 +239,6 @@
         }
 
         function openSettings(allowClose = true) {
-            // Zmena: Použitie zobrazeného názvu
             currentModelDisplay.textContent = API_MODEL_DISPLAY;
             saveStatus.textContent = '';
             settingsModal.classList.remove('hidden');
@@ -267,7 +269,7 @@
             updateSendButtonState();
         }
 
-        // Renderovanie správ
+        // Renderovanie správ (len pre UI, história sa riadi chatHistory)
         function addMessage(text, role, image = null, isError = false) {
             const isUser = role === 'user';
             const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -308,16 +310,48 @@
             }
 
             // Definuje persona a pravidlá modelu - Nová inštrukcia
-            const systemPrompt = "Si LoomoAI, pokročilý multijazyčný asistent. Tvoj materinský jazyk je slovenčina, no si plynulý vo všetkých jazykoch. VŽDY odpovedaj v tom jazyku, v ktorom bola položená otázka, pokiaľ nepožiadaš o preklad alebo zmenu. Buď ústretový, presný a užitočný.";
+            const systemPrompt = "Si LoomoAI, pokročilý multijazyčný asistent. Tvoj materinský jazyk je slovenčina, no si plynulý vo všetkých jazykoch. VŽDY odpovedaj v tom jazyku, v ktorom bola položená otázka, pokiaľ nepožiadaš o preklad alebo zmenu. Buď ústretový, presný a užitočný. Pamätaj si predchádzajúci kontext konverzácie.";
 
 
             const text = messageInput.value.trim();
             if (!text && !selectedImageBase64) return;
 
-            // Reset UI
+            // Uložiť aktuálne dáta pre UI a históriu
             const currentImage = selectedImageBase64;
             const currentText = text;
+
+            // Príprava častí správy pre API
+            const userParts = [];
             
+            if (currentText) {
+                userParts.push({ text: currentText });
+            }
+
+            let mimeType = "image/jpeg";
+            if (currentImage) {
+                const mimeTypeMatch = currentImage.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9\-\.]+);base64/);
+                mimeType = mimeTypeMatch ? mimeTypeMatch[1] : mimeType;
+                const base64Data = currentImage.split(',')[1];
+                
+                userParts.push({
+                    inlineData: {
+                        mimeType: mimeType, 
+                        data: base64Data
+                    }
+                });
+            }
+
+            // 1. Pridať správu užívateľa do UI
+            addMessage(currentText, 'user', currentImage);
+
+            // 2. Pridať správu užívateľa do histórie konverzácie
+            chatHistory.push({
+                role: "user",
+                parts: userParts
+            });
+
+
+            // Reset UI
             messageInput.value = '';
             selectedImageBase64 = null;
             imagePreviewContainer.classList.add('hidden');
@@ -325,38 +359,17 @@
             isProcessing = true;
             updateSendButtonState();
 
-            // Pridať User správu
-            addMessage(currentText, 'user', currentImage);
-
             // Zobraziť loading
             loadingIndicator.classList.remove('hidden');
             scrollToBottom();
             
-            // API URL (používa technický názov)
+            // API URL
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${API_MODEL_TECHNICAL}:generateContent?key=${apiKey}`;
 
             try {
-                // Príprava dát
-                const parts = [];
-                if (currentText) {
-                    parts.push({ text: currentText });
-                }
-                if (currentImage) {
-                    // Predpokladáme JPG/PNG pre jednoduchosť - pre API stačí base64 data.
-                    const mimeTypeMatch = currentImage.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9\-\.]+);base64/);
-                    const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/jpeg";
-                    const base64Data = currentImage.split(',')[1];
-                    
-                    parts.push({
-                        inlineData: {
-                            mimeType: mimeType, 
-                            data: base64Data
-                        }
-                    });
-                }
-                
+                // Posielame celú históriu konverzácie
                 const payload = { 
-                    contents: [{ parts: parts }],
+                    contents: chatHistory,
                     systemInstruction: {
                         parts: [{ text: systemPrompt }]
                     }
@@ -400,16 +413,31 @@
                 }
                 
                 if (data.error) throw new Error(data.error.message);
-                if (!data.candidates || data.candidates.length === 0) throw new Error("Model neposkytol odpoveď. Skús preformulovať otázku.");
                 
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                addMessage(aiResponse, 'model');
+                const aiCandidate = data.candidates?.[0];
+                if (!aiCandidate || aiCandidate.content.parts.length === 0) {
+                     // Ak model odpovie prázdnou správou (často pri filtrovaní obsahu), vyhoď chybu.
+                    throw new Error("Model neposkytol odpoveď. Možno bola správa zablokovaná bezpečnostným filtrom, alebo je príliš rozsiahla.");
+                }
+
+                const aiResponseText = aiCandidate.content.parts[0].text;
+                
+                // 3. Pridať odpoveď modelu do UI
+                addMessage(aiResponseText, 'model');
+
+                // 4. Pridať odpoveď modelu do histórie konverzácie
+                chatHistory.push({
+                    role: "model",
+                    parts: [{ text: aiResponseText }]
+                });
 
             } catch (error) {
+                // V prípade chyby musíme odstrániť poslednú user správu z histórie, aby sme neposielali chybné volanie znova
+                chatHistory.pop(); 
+
                 let displayError = error.message.replace(/API key not valid\. Please pass a valid API key\./, 'Zadaný API kľúč nie je platný.');
                 
                 if (displayError.includes('API key') || displayError.includes('invalid model')) {
-                     // Zmena: Použitie zobrazeného názvu
                      displayError = `Chyba API kľúča alebo modelu (${API_MODEL_DISPLAY}). Skontroluj kľúč v nastaveniach a ulož znova.`;
                 }
 
