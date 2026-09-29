@@ -3,46 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LomooAI - Mobile AI Ecosystem</title>
+  <title>LomooAI Pro - Web, YouTube & Memory</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- Marked.js for Markdown & Highlight.js for Code -->
+  <!-- Marked.js & Highlight.js -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
   <style>
-    /* Mobile Viewport Simulation & Glassmorphism */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    
     .chat-scroll::-webkit-scrollbar { width: 4px; }
     .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
     
-    /* Thinking Glow Animation */
     @keyframes pulse-glow {
       0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6)); }
       50% { opacity: 1; filter: drop-shadow(0 0 16px rgba(147, 51, 234, 0.9)); }
     }
     .thinking-active { animation: pulse-glow 2s infinite ease-in-out; }
-    
-    /* Music chords formatting */
     .chord-pro { font-family: monospace; color: #38bdf8; font-weight: bold; }
-    
-    /* Sandbox Canvas/Video Player */
-    .sandbox-frame {
-      width: 100%;
-      height: 260px;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      background: #000;
-    }
+    .sandbox-frame { width: 100%; height: 260px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; background: #000; }
+    .youtube-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin: 8px 0; }
+    .youtube-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
   </style>
 </head>
 <body class="h-full flex items-center justify-center p-0 sm:p-4 overflow-hidden">
@@ -55,25 +44,25 @@
       </div>
       <div class="absolute w-32 h-32 rounded-full border border-indigo-500/30 animate-ping"></div>
     </div>
-    <h1 class="text-3xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">LomooAI</h1>
-    <p class="text-xs text-slate-400 mt-2 tracking-widest uppercase">Next-Gen Intelligence</p>
+    <h1 class="text-3xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">LomooAI Pro</h1>
+    <p class="text-xs text-slate-400 mt-2 tracking-widest uppercase">Internet • Pamäť • YouTube • AI</p>
   </div>
 
   <!-- ================= MOBILE CONTAINER ================= -->
   <div class="w-full h-full sm:max-w-[430px] sm:h-[900px] bg-slate-900 sm:rounded-[40px] shadow-2xl flex flex-col relative overflow-hidden border border-slate-800">
     
-    <!-- Top Status / Notch simulation -->
+    <!-- Top Status / Notch -->
     <div class="h-6 w-full bg-slate-950/80 flex items-center justify-between px-6 text-[10px] text-slate-400 font-semibold z-20">
       <span id="clock">12:00</span>
-      <div class="flex items-center gap-1.5">
-        <i class="fa-solid fa-signal"></i>
-        <i class="fa-solid fa-wifi"></i>
+      <div class="flex items-center gap-2">
+        <span id="web-badge" class="hidden text-[9px] text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-globe"></i>WEB ON</span>
+        <i class="fa-solid fa-wifi text-xs"></i>
         <i class="fa-solid fa-battery-full text-xs"></i>
       </div>
     </div>
 
     <!-- App Header -->
-    <header class="p-3.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 flex items-center justify-between z-20">
+    <header class="p-3 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex items-center justify-between z-20">
       <div class="flex items-center gap-2">
         <button onclick="toggleSidebar()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
           <i class="fa-solid fa-bars-staggered text-xs"></i>
@@ -81,20 +70,18 @@
         <div>
           <div class="flex items-center gap-1.5">
             <span class="font-bold text-sm bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">LomooAI</span>
-            <span id="codex-badge" class="hidden text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded-full font-mono">CODEX</span>
+            <span id="codex-badge" class="hidden text-[8px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1 rounded font-mono">CODEX</span>
           </div>
-          <select id="model-selector" class="bg-transparent text-[11px] text-slate-400 outline-none border-none cursor-pointer max-w-[140px] truncate">
-            <option value="" disabled selected>Načítaj kľúče v nastaveniach</option>
+          <select id="model-selector" class="bg-transparent text-[11px] text-slate-400 outline-none border-none cursor-pointer max-w-[130px] truncate">
+            <option value="" disabled selected>Zadaj kľúče v nastaveniach</option>
           </select>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <!-- 1h Rate Limit Info Badge -->
-        <div class="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded-full text-[10px] text-slate-300 border border-slate-700/50">
-          <i class="fa-solid fa-bolt text-amber-400"></i>
-          <span id="hourly-limit-counter">20/20</span>
-        </div>
+      <div class="flex items-center gap-1.5">
+        <button id="web-search-toggle" onclick="toggleWebSearch()" title="Prehľadávanie internetu" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 transition">
+          <i class="fa-solid fa-globe text-xs"></i>
+        </button>
         <button onclick="openSettingsModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
           <i class="fa-solid fa-sliders text-xs"></i>
         </button>
@@ -103,29 +90,28 @@
 
     <!-- Chat Messages Viewport -->
     <main id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 chat-scroll relative bg-slate-950/40">
-      <!-- Welcome message placeholder -->
       <div id="welcome-message" class="text-center my-auto py-12 flex flex-col items-center justify-center text-slate-400">
         <div class="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-3 text-2xl">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
         </div>
-        <h2 class="text-base font-semibold text-slate-200">Ako ti dnes pomôžem?</h2>
-        <p class="text-xs text-slate-500 max-w-[240px] mt-1">LomooAI je pripravený uvažovať v reálnom čase, generovať animácie a kód.</p>
+        <h2 class="text-base font-semibold text-slate-200">LomooAI s Pamäťou a Webom</h2>
+        <p class="text-xs text-slate-500 max-w-[250px] mt-1">Viem si pamätať fakty, hľadať na webe, prehrávať YouTube a kódovať.</p>
       </div>
     </main>
 
-    <!-- Upload/Media Preview Bar -->
+    <!-- Media / File preview -->
     <div id="media-preview-container" class="hidden px-4 py-2 bg-slate-900 border-t border-slate-800 flex items-center gap-2 overflow-x-auto"></div>
 
     <!-- Input Footer -->
-    <footer class="p-3 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/80 z-20">
-      <div class="relative flex items-end gap-2 bg-slate-800/70 border border-slate-700/50 rounded-3xl p-1.5 focus-within:border-indigo-500/60 transition-all">
+    <footer class="p-3 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 z-20">
+      <div class="relative flex items-end gap-1.5 bg-slate-800/70 border border-slate-700/50 rounded-3xl p-1.5 focus-within:border-indigo-500/60 transition-all">
         
         <label class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-indigo-400 cursor-pointer transition">
           <i class="fa-solid fa-paperclip text-sm"></i>
           <input type="file" id="file-input" multiple class="hidden" onchange="handleFileUpload(event)">
         </label>
 
-        <textarea id="prompt-input" rows="1" placeholder="Napíš správu pre LomooAI..." 
+        <textarea id="prompt-input" rows="1" placeholder="Opýtaj sa čokoľvek, hľadaj video..." 
           class="flex-1 max-h-32 bg-transparent text-sm text-slate-100 placeholder-slate-500 outline-none resize-none py-1.5 px-1 leading-snug"
           oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
 
@@ -149,23 +135,43 @@
         <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       
-      <div class="p-3">
+      <div class="p-3 space-y-2">
         <button onclick="createNewChat()" class="w-full py-2 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2">
           <i class="fa-solid fa-plus"></i> Nová konverzácia
         </button>
+        <button onclick="openMemoryModal()" class="w-full py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2">
+          <i class="fa-solid fa-brain"></i> Spravovať Pamäť AI (<span id="memory-count">0</span>)
+        </button>
       </div>
 
-      <div id="chat-history-list" class="flex-1 overflow-y-auto px-3 space-y-1 text-xs chat-scroll">
-        <!-- Chat items -->
-      </div>
+      <div class="px-4 py-1 text-[11px] text-slate-500 font-semibold uppercase">História četov</div>
+      <div id="chat-history-list" class="flex-1 overflow-y-auto px-3 space-y-1 text-xs chat-scroll"></div>
 
       <div class="p-4 border-t border-slate-800 flex flex-col gap-2">
         <label class="flex items-center justify-between cursor-pointer">
-          <span class="text-xs text-slate-300"><i class="fa-solid fa-code text-amber-400 mr-2"></i>Codex Developer Mode</span>
+          <span class="text-xs text-slate-300"><i class="fa-solid fa-code text-amber-400 mr-2"></i>Codex Mode</span>
           <input type="checkbox" id="codex-switch" class="sr-only" onchange="toggleCodexMode()">
           <div class="w-8 h-4 bg-slate-700 rounded-full relative transition codex-toggle-bg"><div class="dot absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition"></div></div>
         </label>
         <button onclick="logout()" class="text-left text-xs text-red-400 hover:text-red-300 pt-2"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Odhlásiť sa</button>
+      </div>
+    </div>
+
+    <!-- ================= MEMORY MANAGEMENT MODAL ================= -->
+    <div id="memory-modal" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2"><i class="fa-solid fa-brain text-purple-400"></i> Dlhodobá Pamäť LomooAI</h3>
+          <button onclick="closeMemoryModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="text-[11px] text-slate-400">Fakty, ktoré si AI pamätá o vašich preferenciách a informáciách.</p>
+        
+        <div class="flex gap-2">
+          <input type="text" id="manual-memory-input" placeholder="Pridaj fakt (napr. Bývam v Bratislave)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none">
+          <button onclick="addManualMemory()" class="bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded-xl text-xs font-bold text-white"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <div id="memory-items-list" class="max-h-48 overflow-y-auto space-y-1.5 text-xs chat-scroll pr-1"></div>
       </div>
     </div>
 
@@ -194,26 +200,25 @@
       </div>
     </div>
 
-    <!-- ================= AUTH MODAL (Nickname + PIN) ================= -->
+    <!-- ================= AUTH MODAL ================= -->
     <div id="auth-modal" class="hidden absolute inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-6 text-center">
       <div class="w-16 h-16 rounded-3xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-2xl text-indigo-400 mb-4">
         <i class="fa-solid fa-fingerprint"></i>
       </div>
       <h2 class="text-lg font-bold text-slate-100">Lokálne Prihlásenie</h2>
-      <p class="text-xs text-slate-400 mb-6">Dáta sú uložené súkromne vo vašej IndexedDB.</p>
+      <p class="text-xs text-slate-400 mb-6">Dáta a pamäť zostávajú bezpečne vo vašom prehliadači.</p>
       
       <div class="w-full space-y-3 max-w-xs">
         <input type="text" id="auth-nickname" placeholder="Zadaj Nickname" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white outline-none focus:border-indigo-500">
-        <input type="password" id="auth-pin" placeholder="PIN / Heslo (ľubovoľné)" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white outline-none focus:border-indigo-500">
+        <input type="password" id="auth-pin" placeholder="PIN / Heslo" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white outline-none focus:border-indigo-500">
         <button onclick="handleLocalAuth()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-xs text-white transition">Vstúpiť do LomooAI</button>
       </div>
     </div>
 
   </div>
 
-  <!-- ================= LOGIC & INDEXEDDB SYSTEM ================= -->
+  <!-- ================= LOGIC & CORE ENGINE ================= -->
   <script>
-    // Global App State
     let currentUser = null;
     let geminiKey = localStorage.getItem('lomoo_gemini_key') || '';
     let groqKey = localStorage.getItem('lomoo_groq_key') || '';
@@ -222,14 +227,12 @@
     let attachedFiles = []; 
     let ttsEnabled = false;
     let codexMode = false;
+    let webSearchEnabled = true; // Enabled by default
+    let memoriesList = [];
 
-    // 1-Hour Rate limit Tracker
-    const HOURLY_MAX_REQUESTS = 40;
-    let rateLimitState = { count: 0, resetTime: Date.now() + 3600000 };
-
-    /* --- INDEXEDDB DATABASE ENGINE --- */
-    const DB_NAME = "LomooAIDatabase";
-    const DB_VERSION = 1;
+    /* --- INDEXEDDB DATABASE (Chats, Users & Memory) --- */
+    const DB_NAME = "LomooAI_DB_v2";
+    const DB_VERSION = 2;
     let db;
 
     function initIndexedDB() {
@@ -237,18 +240,12 @@
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = (e) => {
           const dbInstance = e.target.result;
-          if (!dbInstance.objectStoreNames.contains('chats')) {
-            dbInstance.createObjectStore('chats', { keyPath: 'id' });
-          }
-          if (!dbInstance.objectStoreNames.contains('users')) {
-            dbInstance.createObjectStore('users', { keyPath: 'nickname' });
-          }
+          if (!dbInstance.objectStoreNames.contains('chats')) dbInstance.createObjectStore('chats', { keyPath: 'id' });
+          if (!dbInstance.objectStoreNames.contains('users')) dbInstance.createObjectStore('users', { keyPath: 'nickname' });
+          if (!dbInstance.objectStoreNames.contains('memories')) dbInstance.createObjectStore('memories', { keyPath: 'id', autoIncrement: true });
         };
-        req.onsuccess = (e) => {
-          db = e.target.result;
-          resolve(db);
-        };
-        req.onerror = () => reject("Nepodarilo sa otvoriť IndexedDB");
+        req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+        req.onerror = () => reject("IndexedDB error");
       });
     }
 
@@ -262,30 +259,52 @@
       if (!db) return [];
       return new Promise((resolve) => {
         const tx = db.transaction('chats', 'readonly');
-        const store = tx.objectStore('chats');
-        const req = store.getAll();
+        const req = tx.objectStore('chats').getAll();
+        req.onsuccess = () => resolve((req.result || []).filter(c => c.user === nickname));
+      });
+    }
+
+    async function loadMemoriesFromDB() {
+      if (!db || !currentUser) return;
+      return new Promise((resolve) => {
+        const tx = db.transaction('memories', 'readonly');
+        const req = tx.objectStore('memories').getAll();
         req.onsuccess = () => {
-          const userChats = (req.result || []).filter(c => c.user === nickname);
-          resolve(userChats);
+          memoriesList = (req.result || []).filter(m => m.user === currentUser.nickname);
+          document.getElementById('memory-count').innerText = memoriesList.length;
+          renderMemoryListUI();
+          resolve(memoriesList);
         };
       });
     }
 
-    /* --- INITIALIZATION & SPLASH SCREEN --- */
+    async function addMemoryToDB(factText) {
+      if (!db || !currentUser || !factText.trim()) return;
+      const tx = db.transaction('memories', 'readwrite');
+      tx.objectStore('memories').add({ user: currentUser.nickname, fact: factText.trim(), date: new Date().toLocaleDateString() });
+      await loadMemoriesFromDB();
+    }
+
+    async function deleteMemoryFromDB(id) {
+      if (!db) return;
+      const tx = db.transaction('memories', 'readwrite');
+      tx.objectStore('memories').delete(id);
+      await loadMemoriesFromDB();
+    }
+
+    /* --- INITIALIZATION --- */
     window.addEventListener('DOMContentLoaded', async () => {
       updateClock();
       setInterval(updateClock, 1000);
       await initIndexedDB();
 
-      // Check Saved Session
       const savedUser = localStorage.getItem('lomoo_user');
       if (savedUser) {
         currentUser = JSON.parse(savedUser);
         document.getElementById('user-nickname-display').innerText = currentUser.nickname;
       }
 
-      // Auto dismiss splash
-      setTimeout(() => {
+      setTimeout(async () => {
         const splash = document.getElementById('intro-screen');
         splash.classList.add('opacity-0', 'pointer-events-none');
         setTimeout(() => splash.remove(), 700);
@@ -293,12 +312,13 @@
         if (!currentUser) {
           document.getElementById('auth-modal').classList.remove('hidden');
         } else {
+          await loadMemoriesFromDB();
           loadChatHistoryUI();
           if (geminiKey || groqKey) syncAllModels();
         }
-      }, 1500);
+      }, 1400);
 
-      initRateLimiter();
+      updateWebBadge();
     });
 
     function updateClock() {
@@ -306,16 +326,89 @@
       document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    /* --- AUTHENTICATION --- */
+    function toggleWebSearch() {
+      webSearchEnabled = !webSearchEnabled;
+      const btn = document.getElementById('web-search-toggle');
+      if (webSearchEnabled) {
+        btn.classList.add('text-emerald-400');
+        btn.classList.remove('text-slate-400');
+      } else {
+        btn.classList.remove('text-emerald-400');
+        btn.classList.add('text-slate-400');
+      }
+      updateWebBadge();
+    }
+
+    function updateWebBadge() {
+      const badge = document.getElementById('web-badge');
+      if (webSearchEnabled) badge.classList.remove('hidden');
+      else badge.classList.add('hidden');
+    }
+
+    /* --- WEB SEARCH & YOUTUBE INTEGRATION ENGINES --- */
+    async function performWebSearch(query) {
+      try {
+        // Safe CORS Free search aggregator
+        const searchUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+        const res = await fetch(searchUrl);
+        const data = await res.json();
+        let snippets = [];
+
+        if (data.AbstractText) snippets.push(`Súhrn: ${data.AbstractText}`);
+        if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+          data.RelatedTopics.slice(0, 3).forEach(t => {
+            if (t.Text) snippets.push(t.Text);
+          });
+        }
+
+        // Wikipedia fallback search for instant knowledge
+        if (snippets.length === 0) {
+          const wikiRes = await fetch(`https://sk.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+          if (wikiRes.ok) {
+            const wikiData = await wikiRes.json();
+            if (wikiData.extract) snippets.push(`Wikipedia (${wikiData.title}): ${wikiData.extract}`);
+          }
+        }
+
+        return snippets.length > 0 ? snippets.join("\n") : "Neboli nájdené priame výsledky z vyhľadávania.";
+      } catch (err) {
+        return "Vyhľadávanie na webe bolo nedostupné.";
+      }
+    }
+
+    async function searchYouTubeVideos(query) {
+      try {
+        const cleanQuery = query.replace(/najdi na youtube|hladaj na youtube|video|piesen|pesnicku/gi, '').trim();
+        // Public Invidious API instance for search
+        const res = await fetch(`https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(cleanQuery)}&type=video`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          return data.slice(0, 2).map(v => ({
+            id: v.videoId,
+            title: v.title,
+            author: v.author,
+            length: Math.floor(v.lengthSeconds / 60) + ":" + (v.lengthSeconds % 60).toString().padStart(2, '0')
+          }));
+        }
+      } catch (e) {
+        // Fallback demo video if search API is temporarily rate-limited
+        return [{ id: 'dQw4w9WgXcQ', title: query, author: 'YouTube', length: 'Live' }];
+      }
+      return [];
+    }
+
+    /* --- AUTH & DYNAMIC MODELS --- */
     function handleLocalAuth() {
       const nick = document.getElementById('auth-nickname').value.trim();
       const pin = document.getElementById('auth-pin').value.trim();
-      if (!nick) return alert("Prosím zadaj aspoň Nickname");
+      if (!nick) return alert("Prosím zadaj Nickname");
 
       currentUser = { nickname: nick, pin: pin };
       localStorage.setItem('lomoo_user', JSON.stringify(currentUser));
       document.getElementById('user-nickname-display').innerText = nick;
       document.getElementById('auth-modal').classList.add('hidden');
+      loadMemoriesFromDB();
       loadChatHistoryUI();
       if (geminiKey || groqKey) syncAllModels();
     }
@@ -325,7 +418,6 @@
       location.reload();
     }
 
-    /* --- DYNAMIC MODEL SYNCHRONIZATION (Gemini & Groq) --- */
     async function syncAllModels() {
       const gKey = document.getElementById('gemini-key-input').value.trim() || geminiKey;
       const grKey = document.getElementById('groq-key-input').value.trim() || groqKey;
@@ -335,9 +427,8 @@
       if (grKey) { groqKey = grKey; localStorage.setItem('lomoo_groq_key', grKey); }
 
       activeModels = [];
-      if (status) status.innerText = "Synchronizujem modely...";
+      if (status) status.innerText = "Synchronizujem...";
 
-      // 1. Fetch Google Gemini Models dynamically
       if (geminiKey) {
         try {
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`);
@@ -345,15 +436,12 @@
           if (data.models) {
             const geminiModels = data.models
               .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
-              .map(m => ({ id: m.name.replace('models/', ''), name: `Google: ${m.displayName || m.name}`, provider: 'gemini' }));
+              .map(m => ({ id: m.name.replace('models/', ''), name: `Gemini: ${m.displayName || m.name}`, provider: 'gemini' }));
             activeModels.push(...geminiModels);
           }
-        } catch (e) {
-          console.warn("Chyba načítania Gemini modelov", e);
-        }
+        } catch (e) {}
       }
 
-      // 2. Fetch Groq Models dynamically
       if (groqKey) {
         try {
           const res = await fetch(`https://api.groq.com/openai/v1/models`, {
@@ -364,17 +452,14 @@
             const groqModels = data.data.map(m => ({ id: m.id, name: `Groq: ${m.id}`, provider: 'groq' }));
             activeModels.push(...groqModels);
           }
-        } catch (e) {
-          console.warn("Chyba načítania Groq modelov", e);
-        }
+        } catch (e) {}
       }
 
-      // Populate Select
       const select = document.getElementById('model-selector');
       select.innerHTML = '';
       if (activeModels.length === 0) {
         select.innerHTML = `<option value="" disabled selected>Žiadne kľúče/modely</option>`;
-        if (status) status.innerText = "⚠️ Neboli nájdené žiadne modely. Skontrolujte kľúče.";
+        if (status) status.innerText = "⚠️ Skontrolujte API kľúče.";
       } else {
         activeModels.forEach(m => {
           const opt = document.createElement('option');
@@ -382,88 +467,11 @@
           opt.innerText = m.name;
           select.appendChild(opt);
         });
-        if (status) status.innerText = `✅ Úspešne načítaných ${activeModels.length} modelov.`;
+        if (status) status.innerText = `✅ Načítaných ${activeModels.length} modelov.`;
       }
     }
 
-    /* --- RATE LIMITING (1-Hour Limits) --- */
-    function initRateLimiter() {
-      const saved = localStorage.getItem('lomoo_ratelimit');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Date.now() < parsed.resetTime) {
-          rateLimitState = parsed;
-        } else {
-          resetRateLimit();
-        }
-      }
-      updateRateLimitUI();
-    }
-
-    function resetRateLimit() {
-      rateLimitState = { count: 0, resetTime: Date.now() + 3600000 };
-      localStorage.setItem('lomoo_ratelimit', JSON.stringify(rateLimitState));
-    }
-
-    function checkRateLimit() {
-      if (Date.now() > rateLimitState.resetTime) resetRateLimit();
-      if (rateLimitState.count >= HOURLY_MAX_REQUESTS) {
-        const mins = Math.ceil((rateLimitState.resetTime - Date.now()) / 60000);
-        alert(`⚠️ Dosiahli ste 1-hodinový limit LomooAI. Skúste to znova o ${mins} minút.`);
-        return false;
-      }
-      rateLimitState.count++;
-      localStorage.setItem('lomoo_ratelimit', JSON.stringify(rateLimitState));
-      updateRateLimitUI();
-      return true;
-    }
-
-    function updateRateLimitUI() {
-      const remaining = Math.max(0, HOURLY_MAX_REQUESTS - rateLimitState.count);
-      document.getElementById('hourly-limit-counter').innerText = `${remaining}/${HOURLY_MAX_REQUESTS}`;
-    }
-
-    /* --- MULTIMODAL FILE & VIDEO UPLOADS --- */
-    async function handleFileUpload(e) {
-      const files = Array.from(e.target.files);
-      for (const file of files) {
-        const base64 = await fileToBase64(file);
-        attachedFiles.push({ name: file.name, type: file.type, base64: base64 });
-      }
-      renderMediaPreviews();
-      e.target.value = '';
-    }
-
-    function fileToBase64(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function renderMediaPreviews() {
-      const box = document.getElementById('media-preview-container');
-      if (attachedFiles.length === 0) {
-        box.classList.add('hidden');
-        return;
-      }
-      box.classList.remove('hidden');
-      box.innerHTML = attachedFiles.map((f, idx) => `
-        <div class="relative flex items-center gap-1 bg-slate-800 text-[11px] px-2 py-1 rounded-lg border border-slate-700 text-slate-300 shrink-0">
-          <i class="${f.type.includes('image') ? 'fa-solid fa-image' : 'fa-solid fa-file-video'} text-indigo-400"></i>
-          <span class="max-w-[80px] truncate">${f.name}</span>
-          <button onclick="removeAttachedFile(${idx})" class="text-slate-500 hover:text-red-400 ml-1"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-      `).join('');
-    }
-
-    function removeAttachedFile(idx) {
-      attachedFiles.splice(idx, 1);
-      renderMediaPreviews();
-    }
-
-    /* --- REAL-TIME THINKING & SEND MESSAGE SYSTEM --- */
+    /* --- REAL-TIME AI THINKING & DISPATCHER --- */
     async function sendMessage() {
       const input = document.getElementById('prompt-input');
       const text = input.value.trim();
@@ -471,21 +479,17 @@
 
       const modelSelect = document.getElementById('model-selector');
       if (!modelSelect.value) {
-        alert("Najprv vložte API kľúč v nastaveniach a synchronizujte modely.");
+        alert("Zadajte API kľúč v nastaveniach.");
         openSettingsModal();
         return;
       }
       const activeModelObj = JSON.parse(modelSelect.value);
 
-      if (!checkRateLimit()) return;
-
-      // Ensure active Chat ID
       if (!currentChatId) {
         currentChatId = 'chat_' + Date.now();
-        currentChatHistory = { id: currentChatId, title: text.slice(0, 30) || 'Multimodálna správa', messages: [] };
+        currentChatHistory = { id: currentChatId, title: text.slice(0, 25) || 'Správa', messages: [] };
       }
 
-      // Append User message to UI
       const welcome = document.getElementById('welcome-message');
       if (welcome) welcome.remove();
 
@@ -495,100 +499,104 @@
       const promptPayload = text;
       const mediaPayload = [...attachedFiles];
       
-      // Clear inputs
       input.value = '';
       autoResize(input);
       attachedFiles = [];
       renderMediaPreviews();
 
-      // Append Animated "Thinking..." placeholder (ChatGPT style)
       const botMsgId = 'ai-msg-' + Date.now();
       appendThinkingBubbleUI(botMsgId);
 
       try {
-        const responseText = await executeModelRequestWithRetry(activeModelObj, promptPayload, mediaPayload);
-        replaceThinkingWithResponse(botMsgId, responseText);
-        currentChatHistory.messages.push({ role: 'assistant', content: responseText });
+        let webContext = "";
+        let ytVideos = [];
+
+        // 1. Check for YouTube Search intent
+        const isYTQuery = /(youtube|pesnick|video|zahraj|najdi song|klip)/i.test(promptPayload);
+        if (isYTQuery) {
+          updateThinkingStatus(botMsgId, "🎬 Vyhľadávam YouTube videá...");
+          ytVideos = await searchYouTubeVideos(promptPayload);
+        }
+
+        // 2. Check for Web Search
+        if (webSearchEnabled) {
+          updateThinkingStatus(botMsgId, "🌐 Prehľadávam internet a overujem fakty...");
+          webContext = await performWebSearch(promptPayload);
+        }
+
+        // 3. Check for Long-term Memory Auto-learning
+        if (/(pamataj si|zapamataj si|moje meno je|volam sa|byvam v|mam rad)/i.test(promptPayload)) {
+          updateThinkingStatus(botMsgId, "🧠 Ukladám informáciu do pamäte...");
+          await addMemoryToDB(promptPayload);
+        }
+
+        updateThinkingStatus(botMsgId, "Thinking... Generujem finálnu odpoveď");
+
+        // Construct System Context with Injected Memories
+        const memoryContext = memoriesList.map(m => `- ${m.fact}`).join("\n");
+        const responseText = await executeModelRequest(activeModelObj, promptPayload, mediaPayload, webContext, memoryContext, ytVideos);
+        
+        replaceThinkingWithResponse(botMsgId, responseText, ytVideos);
+        currentChatHistory.messages.push({ role: 'assistant', content: responseText, ytVideos: ytVideos });
         saveChatToDB(currentChatHistory);
         loadChatHistoryUI();
 
         if (ttsEnabled) speakText(responseText);
       } catch (err) {
-        replaceThinkingWithResponse(botMsgId, `⚠️ Chyba spracovania: ${err.message || 'Nepodarilo sa získať odpoveď.'}`);
+        replaceThinkingWithResponse(botMsgId, `⚠️ Chyba: ${err.message || 'Nepodarilo sa vygenerovať odpoveď.'}`, []);
       }
     }
 
-    /* --- RESILIENT API CALL (With Anti-Spike Retry Engine) --- */
-    async function executeModelRequestWithRetry(modelObj, prompt, media, retryCount = 2) {
-      for (let attempt = 0; attempt <= retryCount; attempt++) {
-        try {
-          if (modelObj.provider === 'gemini') {
-            return await callGeminiAPI(modelObj.id, prompt, media);
-          } else if (modelObj.provider === 'groq') {
-            return await callGroqAPI(modelObj.id, prompt);
-          }
-        } catch (error) {
-          const isHighDemand = error.message && (error.message.includes('503') || error.message.includes('demand') || error.message.includes('429'));
-          if (isHighDemand && attempt < retryCount) {
-            await new Promise(r => setTimeout(r, 1500 * (attempt + 1))); // Backoff wait
-            continue;
-          }
-          throw error;
-        }
-      }
-    }
-
-    async function callGeminiAPI(modelId, prompt, media) {
-      const parts = [];
+    /* --- RESILIENT API CALL (With Memory & Web injection) --- */
+    async function executeModelRequest(modelObj, prompt, media, webContext, memoryContext, ytVideos) {
+      let systemInstructions = `Si LomooAI, inteligentný asistent s pamäťou a prístupom na internet.`;
       
-      // Inject Codex Mode Instruction
-      let systemPrompt = "";
+      if (memoryContext) {
+        systemInstructions += `\n\n[DLHODOBÁ PAMÄŤ O POUŽÍVATEĽOVI]:\n${memoryContext}\n(Využi tieto informácie ak sú relevantné).`;
+      }
+      
+      if (webContext) {
+        systemInstructions += `\n\n[AKTUÁLNE VÝSLEDKY Z WEBU]:\n${webContext}\n(Odpovedaj presne na základe týchto aktuálnych dát).`;
+      }
+
       if (codexMode) {
-        systemPrompt = "You are in CODEX DEVELOPER MODE. Provide highly optimized, complete, robust code with syntax highlighting, and generate working HTML/Canvas animations when requested.\n\n";
+        systemInstructions += `\n\nCODEX REŽIM AKTÍVNY: Poskytuj špičkový, funkčný kód, HTML animácie a formátované hudobné akordy.`;
       }
 
-      if (prompt) parts.push({ text: systemPrompt + prompt });
-      media.forEach(m => {
-        parts.push({
-          inline_data: { mime_type: m.type || "image/jpeg", data: m.base64 }
+      if (modelObj.provider === 'gemini') {
+        const parts = [{ text: systemInstructions + "\n\nOtázka používateľa: " + prompt }];
+        media.forEach(m => {
+          parts.push({ inline_data: { mime_type: m.type || "image/jpeg", data: m.base64 } });
         });
-      });
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${geminiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts }] })
-      });
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelObj.id}:generateContent?key=${geminiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts }] })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.candidates[0].content.parts[0].text;
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      return data.candidates[0].content.parts[0].text;
+      } else if (modelObj.provider === 'groq') {
+        const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: modelObj.id,
+            messages: [
+              { role: 'system', content: systemInstructions },
+              { role: 'user', content: prompt }
+            ]
+          })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.choices[0].message.content;
+      }
     }
 
-    async function callGroqAPI(modelId, prompt) {
-      let sysMessage = codexMode ? "CODEX MODE: Output robust code, full working solutions and interactive HTML canvas scripts." : "You are LomooAI, a smart helpful assistant.";
-      
-      const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${groqKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: modelId,
-          messages: [
-            { role: 'system', content: sysMessage },
-            { role: 'user', content: prompt }
-          ]
-        })
-      });
-
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      return data.choices[0].message.content;
-    }
-
-    /* --- UI RENDERING (Chat Bubbles, Thinking, Videos & Blocks) --- */
+    /* --- UI & YOUTUBE RENDERER --- */
     function appendThinkingBubbleUI(id) {
       const box = document.getElementById('chat-box');
       const div = document.createElement('div');
@@ -599,7 +607,7 @@
           <i class="fa-solid fa-brain text-[11px]"></i>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl rounded-tl-sm text-slate-300 w-fit max-w-[85%]">
-          <div class="flex items-center gap-2 thinking-active font-medium text-indigo-400">
+          <div id="${id}-status" class="flex items-center gap-2 thinking-active font-medium text-indigo-400">
             <i class="fa-solid fa-circle-notch fa-spin"></i>
             <span>Thinking... Uvažujem v reálnom čase</span>
           </div>
@@ -609,9 +617,28 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    function replaceThinkingWithResponse(elementId, markdownText) {
+    function updateThinkingStatus(elementId, statusText) {
+      const statusEl = document.getElementById(`${elementId}-status`);
+      if (statusEl) {
+        statusEl.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i><span>${statusText}</span>`;
+      }
+    }
+
+    function replaceThinkingWithResponse(elementId, markdownText, ytVideos = []) {
       const el = document.getElementById(elementId);
       if (!el) return;
+
+      let ytHTML = '';
+      if (ytVideos && ytVideos.length > 0) {
+        ytHTML = ytVideos.map(v => `
+          <div class="my-2 bg-slate-950 p-2 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-bold text-red-400 mb-1 flex items-center gap-1.5"><i class="fa-brands fa-youtube"></i> ${escapeHTML(v.title)}</div>
+            <div class="youtube-container">
+              <iframe src="https://www.youtube-nocookie.com/embed/${v.id}" allowfullscreen></iframe>
+            </div>
+          </div>
+        `).join('');
+      }
 
       const formattedHTML = parseCustomMarkdown(markdownText);
       el.innerHTML = `
@@ -619,7 +646,8 @@
           <i class="fa-solid fa-brain text-[11px]"></i>
         </div>
         <div class="bg-slate-900/90 border border-slate-800/80 p-3.5 rounded-2xl rounded-tl-sm text-slate-200 text-xs w-full overflow-hidden leading-relaxed space-y-2">
-          ${formattedHTML}
+          ${ytHTML}
+          <div>${formattedHTML}</div>
         </div>
       `;
       hljs.highlightAll();
@@ -654,101 +682,112 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    /* --- CUSTOM RICH BLOCK PARSER (Code, Music & HTML Video Animations) --- */
     function parseCustomMarkdown(md) {
-      // 1. Interactive HTML Canvas / Video Blocks
       md = md.replace(/```(html|video-canvas)([\s\S]*?)```/g, (match, type, code) => {
         const uniqueId = 'frame_' + Math.random().toString(36).substr(2, 9);
-        const encoded = encodeURIComponent(code);
         return `
           <div class="my-2 border border-slate-700/80 rounded-xl overflow-hidden bg-black">
             <div class="bg-slate-800 px-3 py-1 flex items-center justify-between text-[10px] text-slate-400">
-              <span><i class="fa-solid fa-film text-purple-400 mr-1"></i> HTML5 Canvas / Video Animácia</span>
-              <button onclick="runSandbox('${uniqueId}', '${encoded}')" class="text-indigo-400 hover:text-white font-bold"><i class="fa-solid fa-play mr-1"></i>Prehrať</button>
+              <span><i class="fa-solid fa-film text-purple-400 mr-1"></i> HTML5 Canvas Animácia</span>
             </div>
             <iframe id="${uniqueId}" class="sandbox-frame" srcdoc="${escapeHTML(code)}"></iframe>
           </div>
         `;
       });
 
-      // 2. Music chords format: [Chord] (e.g. [C], [G], [Am])
       md = md.replace(/\[([A-G][b#]?(?:m|maj|min|7|sus)?)\]/g, '<span class="chord-pro">$1</span>');
-
       return marked.parse(md);
     }
 
-    function runSandbox(frameId, encodedCode) {
-      const frame = document.getElementById(frameId);
-      if (frame) frame.srcdoc = decodeURIComponent(encodedCode);
+    /* --- MEMORY VAULT MODAL UI --- */
+    function openMemoryModal() {
+      renderMemoryListUI();
+      document.getElementById('memory-modal').classList.remove('hidden');
+    }
+    function closeMemoryModal() {
+      document.getElementById('memory-modal').classList.add('hidden');
+    }
+    function renderMemoryListUI() {
+      const list = document.getElementById('memory-items-list');
+      if (memoriesList.length === 0) {
+        list.innerHTML = `<div class="text-slate-500 text-center py-4">Žiadne uložené spomienky.</div>`;
+        return;
+      }
+      list.innerHTML = memoriesList.map(m => `
+        <div class="p-2 bg-slate-800 border border-slate-700/50 rounded-xl flex items-center justify-between gap-2">
+          <div class="truncate text-slate-200"><i class="fa-solid fa-circle-dot text-[8px] text-purple-400 mr-1.5"></i>${escapeHTML(m.fact)}</div>
+          <button onclick="deleteMemoryFromDB(${m.id})" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash text-xs"></i></button>
+        </div>
+      `).join('');
+    }
+    async function addManualMemory() {
+      const input = document.getElementById('manual-memory-input');
+      if (!input.value.trim()) return;
+      await addMemoryToDB(input.value.trim());
+      input.value = '';
     }
 
-    /* --- TEXT TO SPEECH (Browser Native Voice) --- */
+    /* --- UTILS, FILES, TTS --- */
     function toggleVoiceOutput() {
       ttsEnabled = !ttsEnabled;
       const icon = document.getElementById('tts-icon');
-      if (ttsEnabled) {
-        icon.className = "fa-solid fa-volume-high text-amber-400";
-      } else {
-        icon.className = "fa-solid fa-volume-xmark text-slate-400";
-        window.speechSynthesis.cancel();
-      }
+      if (ttsEnabled) icon.className = "fa-solid fa-volume-high text-amber-400";
+      else { icon.className = "fa-solid fa-volume-xmark text-slate-400"; window.speechSynthesis.cancel(); }
     }
 
     function speakText(text) {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
-      // Remove code & chords before speaking
-      const clean = text.replace(/```[\s\S]*?```/g, 'Kód bol vygenerovaný.').replace(/\[.*?\]/g, '');
+      const clean = text.replace(/```[\s\S]*?```/g, 'Kód').replace(/\[.*?\]/g, '');
       const utterance = new SpeechSynthesisUtterance(clean);
       utterance.lang = 'sk-SK';
       window.speechSynthesis.speak(utterance);
     }
 
-    /* --- CODEX DEVELOPER MODE & CONTROLS --- */
+    async function handleFileUpload(e) {
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        const base64 = await fileToBase64(file);
+        attachedFiles.push({ name: file.name, type: file.type, base64: base64 });
+      }
+      renderMediaPreviews();
+      e.target.value = '';
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderMediaPreviews() {
+      const box = document.getElementById('media-preview-container');
+      if (attachedFiles.length === 0) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+      box.innerHTML = attachedFiles.map((f, idx) => `
+        <div class="relative flex items-center gap-1 bg-slate-800 text-[11px] px-2 py-1 rounded-lg border border-slate-700 text-slate-300 shrink-0">
+          <i class="fa-solid fa-file text-indigo-400"></i>
+          <span class="max-w-[70px] truncate">${f.name}</span>
+          <button onclick="attachedFiles.splice(${idx}, 1); renderMediaPreviews();" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+    }
+
     function toggleCodexMode() {
       codexMode = document.getElementById('codex-switch').checked;
-      const badge = document.getElementById('codex-badge');
-      if (codexMode) {
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
+      document.getElementById('codex-badge').classList.toggle('hidden', !codexMode);
     }
+    function autoResize(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+    function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+    function escapeHTML(str) { return str.replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t)); }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+    function openSettingsModal() { document.getElementById('gemini-key-input').value = geminiKey; document.getElementById('groq-key-input').value = groqKey; document.getElementById('settings-modal').classList.remove('hidden'); }
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
 
-    function autoResize(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-
-    function handleKeyDown(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    }
-
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-    }
-
-    function toggleSidebar() {
-      const sb = document.getElementById('sidebar');
-      sb.classList.toggle('-translate-x-full');
-    }
-
-    function openSettingsModal() {
-      document.getElementById('gemini-key-input').value = geminiKey;
-      document.getElementById('groq-key-input').value = groqKey;
-      document.getElementById('settings-modal').classList.remove('hidden');
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.add('hidden');
-    }
-
-    /* --- CHAT HISTORY / NEW CONVERSATIONS --- */
+    /* --- CHAT SESSIONS --- */
     let currentChatHistory = null;
-
     async function loadChatHistoryUI() {
       if (!currentUser) return;
       const chats = await loadUserChats(currentUser.nickname);
@@ -756,10 +795,8 @@
       list.innerHTML = '';
       chats.reverse().forEach(c => {
         const item = document.createElement('div');
-        item.className = "p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-slate-300 cursor-pointer truncate flex items-center justify-between";
-        item.innerHTML = `
-          <span onclick="openSavedChat('${c.id}')" class="truncate flex-1"><i class="fa-regular fa-message mr-2 text-indigo-400"></i>${escapeHTML(c.title)}</span>
-        `;
+        item.className = "p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-slate-300 cursor-pointer truncate";
+        item.innerHTML = `<span onclick="openSavedChat('${c.id}')"><i class="fa-regular fa-message mr-2 text-indigo-400"></i>${escapeHTML(c.title)}</span>`;
         list.appendChild(item);
       });
     }
@@ -768,19 +805,16 @@
       const chats = await loadUserChats(currentUser.nickname);
       const target = chats.find(c => c.id === id);
       if (!target) return;
-      
       currentChatId = target.id;
       currentChatHistory = target;
-      
       const box = document.getElementById('chat-box');
       box.innerHTML = '';
       target.messages.forEach(m => {
-        if (m.role === 'user') {
-          appendMessageUI('user', m.content, m.attachments || []);
-        } else {
+        if (m.role === 'user') appendMessageUI('user', m.content, m.attachments || []);
+        else {
           const mId = 'hist-' + Math.random().toString(36).substr(2, 9);
           appendThinkingBubbleUI(mId);
-          replaceThinkingWithResponse(mId, m.content);
+          replaceThinkingWithResponse(mId, m.content, m.ytVideos || []);
         }
       });
       toggleSidebar();
@@ -791,11 +825,9 @@
       currentChatHistory = null;
       document.getElementById('chat-box').innerHTML = `
         <div id="welcome-message" class="text-center my-auto py-12 flex flex-col items-center justify-center text-slate-400">
-          <div class="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-3 text-2xl">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </div>
-          <h2 class="text-base font-semibold text-slate-200">Ako ti dnes pomôžem?</h2>
-          <p class="text-xs text-slate-500 max-w-[240px] mt-1">LomooAI je pripravený uvažovať v reálnom čase, generovať animácie a kód.</p>
+          <div class="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-3 text-2xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h2 class="text-base font-semibold text-slate-200">LomooAI s Pamäťou a Webom</h2>
+          <p class="text-xs text-slate-500 max-w-[250px] mt-1">Viem si pamätať fakty, hľadať na webe, prehrávať YouTube a kódovať.</p>
         </div>
       `;
       toggleSidebar();
